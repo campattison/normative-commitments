@@ -1,0 +1,26 @@
+# Personal philosophical content
+commitments/
+tensions/
+dialogues/
+readings/
+graph.json
+
+# Working files
+.tmp/
+uploads/
+LOG.md
+TODO.md
+CLAUDE.md
+
+# Python
+__pycache__/
+*.pyc
+.env
+venv/
+
+# System
+.DS_Store
+
+# Agent infrastructure
+.claude/
+.mcp.json

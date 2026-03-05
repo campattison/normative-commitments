@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "nodes": [
+    {
+      "id": "moral-realism",
+      "label": "Moral facts exist independently of what anyone believes",
+      "type": "belief",
+      "tier": "metaethics",
+      "confidence": "probable"
+    },
+    {
+      "id": "harm-principle",
+      "label": "Actions are wrong when they cause unnecessary harm",
+      "type": "belief",
+      "tier": "normative",
+      "confidence": "certain"
+    },
+    {
+      "id": "special-obligations",
+      "label": "We have stronger obligations to those close to us",
+      "type": "belief",
+      "tier": "normative",
+      "confidence": "under-revision"
+    }
+  ],
+  "edges": [
+    {
+      "source": "moral-realism",
+      "target": "harm-principle",
+      "type": "supports",
+      "strength": 0.6
+    },
+    {
+      "source": "harm-principle",
+      "target": "special-obligations",
+      "type": "tension",
+      "strength": 0.7
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Normative Commitments</title>
+  <link rel="stylesheet" href="/ui/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/3d-force-graph"></script>
+</head>
+<body>
+  <nav id="nav">
+    <div class="nav-inner">
+      <div class="nav-title">Normative Commitments</div>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="nav-links" id="nav-links">
+        <a href="#graph" class="nav-link" data-route="graph">Graph</a>
+        <a href="#dialogue" class="nav-link" data-route="dialogue">Dialogue</a>
+        <a href="#readings" class="nav-link" data-route="readings">Readings</a>
+      </div>
+    </div>
+  </nav>
+  <main id="app"></main>
+  <script src="/ui/app.js"></script>
+</body>
+</html>
