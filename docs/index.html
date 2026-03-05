@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cameron Pattison — Normative Commitments</title>
+<title>Normative Commitments</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #0a0a1a;
-  --surface: #12122a;
-  --surface2: #1a1a3e;
-  --border: #2a2a5e;
+  --bg: #1a1a2e;
+  --surface: #16213e;
+  --surface2: #1a2744;
+  --border: #2a3a5e;
   --text: #e0e0e0;
   --text-dim: #8892a8;
   --accent: #e94560;
@@ -21,25 +21,124 @@
   --yellow: #f5c542;
 }
 
+html { font-size: 16px; }
+
 body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
   overflow: hidden;
-  height: 100vh;
-  width: 100vw;
 }
 
+/* --- Nav --- */
+#nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #12122a;
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-inner {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 44px;
+}
+
+.nav-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.nav-links {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.nav-link {
+  padding: 0.35rem 0.75rem;
+  font-size: 12px;
+  color: var(--text-dim);
+  border-radius: 4px;
+  transition: color 0.2s;
+  border-bottom: 2px solid transparent;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.nav-link:hover { color: var(--text); }
+
+.nav-link.active {
+  color: var(--text);
+  font-weight: 600;
+  border-bottom-color: var(--accent);
+}
+
+.nav-link.disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* --- Main content area --- */
+#app {
+  height: calc(100vh - 44px);
+  overflow: hidden;
+  position: relative;
+}
+
+/* --- Page content (non-graph views) --- */
+.page-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+  overflow-y: auto;
+  height: calc(100vh - 44px);
+}
+
+.page-content h1 { font-size: 1.5rem; margin-bottom: 0.75rem; }
+.page-content h2 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+.page-content p { margin-bottom: 1rem; color: var(--text-dim); }
+
+.page-content .placeholder-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.page-content .placeholder-card h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.page-content .placeholder-card p {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 0;
+}
+
+/* --- Graph container --- */
 #graph-container {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: calc(100vh - 44px);
 }
 
-/* HUD overlay */
+/* --- HUD overlays --- */
 #hud {
   position: fixed;
-  top: 0; left: 0; right: 0;
-  padding: 16px 24px;
+  top: 52px; left: 0; right: 0;
+  padding: 12px 20px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -49,137 +148,119 @@ body {
 
 #hud > * { pointer-events: auto; }
 
-#header {
-  background: rgba(18, 18, 42, 0.85);
+#header-card {
+  background: rgba(22, 33, 62, 0.88);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px 20px;
-  max-width: 420px;
+  border-radius: 10px;
+  padding: 12px 16px;
+  max-width: 380px;
 }
 
-#header h1 {
-  font-size: 16px;
+#header-card h2 {
+  font-size: 13px;
   font-weight: 600;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
   letter-spacing: 0.02em;
 }
 
-#header p {
-  font-size: 12px;
+#header-card p {
+  font-size: 11px;
   color: var(--text-dim);
   line-height: 1.4;
+  margin: 0;
 }
 
 #controls-hint {
-  background: rgba(18, 18, 42, 0.85);
+  background: rgba(22, 33, 62, 0.88);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 16px;
+  border-radius: 10px;
+  padding: 10px 14px;
   font-size: 11px;
   color: var(--text-dim);
-  line-height: 1.6;
-  max-width: 220px;
+  line-height: 1.7;
+  max-width: 200px;
 }
 
 #controls-hint kbd {
   display: inline-block;
   background: var(--surface2);
   border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 1px 6px;
+  border-radius: 3px;
+  padding: 0 5px;
   font-family: monospace;
   font-size: 10px;
   color: var(--text);
 }
 
-/* Legend */
+/* --- Legend --- */
 #legend {
   position: fixed;
   bottom: 16px;
   left: 16px;
-  background: rgba(18, 18, 42, 0.85);
+  background: rgba(22, 33, 62, 0.88);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 16px;
+  border-radius: 10px;
+  padding: 10px 14px;
   z-index: 10;
   font-size: 11px;
 }
 
-#legend h3 {
-  font-size: 10px;
+#legend h4 {
+  font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--text-dim);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  font-weight: 600;
 }
 
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.legend-line {
-  width: 20px;
-  height: 2px;
-  flex-shrink: 0;
-}
-
+.legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.legend-line { width: 18px; height: 2px; flex-shrink: 0; }
 .legend-line.dashed {
-  background: repeating-linear-gradient(
-    90deg,
-    var(--accent) 0, var(--accent) 5px,
-    transparent 5px, transparent 9px
-  );
+  background: repeating-linear-gradient(90deg, var(--accent) 0, var(--accent) 4px, transparent 4px, transparent 8px);
 }
 
-/* Detail panel */
+/* --- Detail panel --- */
 #detail-panel {
   position: fixed;
   bottom: 16px;
   right: 16px;
-  background: rgba(18, 18, 42, 0.92);
+  background: rgba(22, 33, 62, 0.92);
   backdrop-filter: blur(16px);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  max-width: 360px;
-  min-width: 280px;
+  border-radius: 10px;
+  padding: 16px;
+  max-width: 340px;
+  min-width: 260px;
+  max-height: 50vh;
+  overflow-y: auto;
   z-index: 10;
   display: none;
-  transition: opacity 0.2s;
 }
 
 #detail-panel.visible { display: block; }
 
 #detail-panel h2 {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   line-height: 1.3;
 }
 
 .badge {
   display: inline-block;
-  padding: 2px 8px;
+  padding: 2px 7px;
   border-radius: 10px;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  margin-right: 6px;
-  margin-bottom: 10px;
+  margin-right: 5px;
+  margin-bottom: 8px;
 }
 
 .badge-tier-metaethics { background: rgba(78, 204, 163, 0.2); color: var(--green); }
@@ -191,32 +272,29 @@ body {
 .badge-tentative       { background: rgba(245, 197, 66, 0.2); color: var(--yellow); }
 .badge-under-revision  { background: rgba(233, 69, 96, 0.2); color: var(--accent); }
 
-#detail-connections {
-  margin-top: 12px;
-  font-size: 12px;
-}
-
-#detail-connections h3 {
-  font-size: 10px;
+#detail-connections { margin-top: 10px; font-size: 12px; }
+#detail-connections h4 {
+  font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--text-dim);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
+  font-weight: 600;
 }
 
 .connection-item {
-  padding: 4px 0;
+  padding: 3px 0;
   color: var(--text-dim);
   line-height: 1.3;
   cursor: pointer;
+  font-size: 11px;
 }
 
 .connection-item:hover { color: var(--text); }
+.conn-support { border-left: 2px solid var(--green); padding-left: 8px; margin-bottom: 3px; }
+.conn-tension { border-left: 2px solid var(--accent); padding-left: 8px; margin-bottom: 3px; }
 
-.conn-support { border-left: 2px solid var(--green); padding-left: 8px; margin-bottom: 4px; }
-.conn-tension { border-left: 2px solid var(--accent); padding-left: 8px; margin-bottom: 4px; }
-
-/* Crosshair */
+/* --- Crosshair --- */
 #crosshair {
   position: fixed;
   top: 50%; left: 50%;
@@ -226,25 +304,19 @@ body {
   opacity: 0;
   transition: opacity 0.3s;
 }
+#crosshair.visible { opacity: 0.35; }
 
-#crosshair.visible { opacity: 0.4; }
-
-#crosshair svg {
-  width: 24px;
-  height: 24px;
-}
-
-/* Speed indicator */
+/* --- Speed indicator --- */
 #speed-indicator {
   position: fixed;
   bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(18, 18, 42, 0.85);
+  background: rgba(22, 33, 62, 0.88);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 6px 14px;
+  border-radius: 6px;
+  padding: 4px 12px;
   font-size: 11px;
   color: var(--text-dim);
   z-index: 10;
@@ -252,32 +324,78 @@ body {
   opacity: 0;
   transition: opacity 0.3s;
 }
-
 #speed-indicator.visible { opacity: 1; }
+
+/* Hide graph overlays when not on graph view */
+body:not(.view-graph) #hud,
+body:not(.view-graph) #legend,
+body:not(.view-graph) #detail-panel,
+body:not(.view-graph) #crosshair,
+body:not(.view-graph) #speed-indicator,
+body:not(.view-graph) #graph-container { display: none; }
+
+body.view-graph .page-content { display: none; }
 </style>
 </head>
-<body>
+<body class="view-graph">
 
-<div id="graph-container"></div>
+<!-- Navigation -->
+<nav id="nav">
+  <div class="nav-inner">
+    <div class="nav-title">Normative Commitments</div>
+    <div class="nav-links">
+      <a class="nav-link active" data-route="graph">Graph</a>
+      <a class="nav-link disabled" data-route="dialogue" title="Requires the full app (Flask + Claude)">Dialogue</a>
+      <a class="nav-link disabled" data-route="readings" title="Requires the full app (Flask + Claude)">Readings</a>
+    </div>
+  </div>
+</nav>
 
+<main id="app">
+  <!-- Graph view -->
+  <div id="graph-container"></div>
+
+  <!-- Dialogue placeholder -->
+  <div class="page-content" id="view-dialogue" style="display:none">
+    <h1>Dialogue</h1>
+    <p>Socratic examination of normative commitments through dialogue with philosophical personas.</p>
+    <div class="placeholder-card">
+      <h3>Requires the full application</h3>
+      <p>The dialogue mode uses a Flask server and Claude API to conduct real-time philosophical examination.
+      Run the full app locally to engage in dialogue.</p>
+    </div>
+  </div>
+
+  <!-- Readings placeholder -->
+  <div class="page-content" id="view-readings" style="display:none">
+    <h1>Reading Notes</h1>
+    <p>Notes from philosophical readings that inform and challenge these commitments.</p>
+    <div class="placeholder-card">
+      <h3>Requires the full application</h3>
+      <p>Reading notes are managed through the Flask server. Run the full app locally to browse and annotate readings.</p>
+    </div>
+  </div>
+</main>
+
+<!-- Graph overlays -->
 <div id="hud">
-  <div id="header">
-    <h1>Normative Commitments</h1>
-    <p>Cameron Pattison's philosophical belief graph — 27 beliefs across metaethics, normative theory, and applied AI philosophy. Fly through to explore.</p>
+  <div id="header-card">
+    <h2>Cameron Pattison's Belief Graph</h2>
+    <p>27 beliefs across metaethics, normative theory, and applied AI philosophy. Click the canvas to enter fly mode, then navigate with WASD.</p>
   </div>
   <div id="controls-hint">
-    <strong style="color: var(--text);">Navigation</strong><br>
+    <strong style="color:var(--text)">Fly Controls</strong><br>
     <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Move<br>
     <kbd>Space</kbd> / <kbd>Shift</kbd> Up / Down<br>
     <kbd>Mouse</kbd> Look around<br>
-    <kbd>Scroll</kbd> Adjust speed<br>
-    <kbd>Click</kbd> node for details<br>
-    <kbd>Esc</kbd> Deselect / Release cursor
+    <kbd>Scroll</kbd> Speed<br>
+    <kbd>Click</kbd> Select node<br>
+    <kbd>Esc</kbd> Release cursor
   </div>
 </div>
 
 <div id="crosshair">
-  <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5">
     <circle cx="12" cy="12" r="4"/>
     <line x1="12" y1="2" x2="12" y2="7"/>
     <line x1="12" y1="17" x2="12" y2="22"/>
@@ -289,11 +407,11 @@ body {
 <div id="speed-indicator"></div>
 
 <div id="legend">
-  <h3>Tiers</h3>
+  <h4>Tiers</h4>
   <div class="legend-item"><span class="legend-dot" style="background:#4ecca3"></span> Metaethics</div>
   <div class="legend-item"><span class="legend-dot" style="background:#a855f7"></span> Normative</div>
   <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span> Applied</div>
-  <h3 style="margin-top:10px">Edges</h3>
+  <h4 style="margin-top:8px">Edges</h4>
   <div class="legend-item"><span class="legend-line" style="background:#4ecca3"></span> Support</div>
   <div class="legend-item"><span class="legend-line dashed"></span> Tension</div>
 </div>
@@ -304,10 +422,46 @@ body {
   <div id="detail-connections"></div>
 </div>
 
-<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-<script src="https://unpkg.com/3d-force-graph@1.73.3/dist/3d-force-graph.min.js"></script>
+<!-- Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.73.3/dist/3d-force-graph.min.js"></script>
+<script src="https://d3js.org/d3-force-3d.v3.min.js"></script>
 
 <script>
+(function() {
+'use strict';
+
+// ============================================================
+// NAV ROUTING
+// ============================================================
+const navLinks = document.querySelectorAll('.nav-link');
+const graphContainer = document.getElementById('graph-container');
+const viewDialogue = document.getElementById('view-dialogue');
+const viewReadings = document.getElementById('view-readings');
+
+function setView(route) {
+  navLinks.forEach(l => l.classList.toggle('active', l.dataset.route === route));
+
+  const isGraph = route === 'graph';
+  document.body.classList.toggle('view-graph', isGraph);
+  graphContainer.style.display = isGraph ? '' : 'none';
+  viewDialogue.style.display = route === 'dialogue' ? '' : 'none';
+  viewReadings.style.display = route === 'readings' ? '' : 'none';
+
+  // Show/hide overlays
+  ['hud', 'legend', 'detail-panel', 'crosshair', 'speed-indicator'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && id !== 'detail-panel') el.style.display = isGraph ? '' : 'none';
+  });
+}
+
+navLinks.forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    setView(link.dataset.route);
+  });
+});
+
 // ============================================================
 // GRAPH DATA (embedded)
 // ============================================================
@@ -316,37 +470,20 @@ const GRAPH_DATA = {"nodes":[{"id":"constructivism","label":"Korsgaardian Metaet
 // ============================================================
 // CONSTANTS
 // ============================================================
-const TIER_COLORS = {
-  metaethics: '#4ecca3',
-  normative:  '#a855f7',
-  applied:    '#3b82f6',
-};
+const TIER_COLORS = { metaethics: '#4ecca3', normative: '#a855f7', applied: '#3b82f6' };
 const DEFAULT_NODE_COLOR = '#8892a8';
-
-const EDGE_COLORS = {
-  support: '#4ecca3',
-  tension: '#e94560',
-};
-
-const CONFIDENCE_OPACITY = {
-  certain:          1.0,
-  probable:         0.85,
-  tentative:        0.6,
-  'under-revision': 0.5,
-};
+const EDGE_COLORS = { support: '#4ecca3', tension: '#e94560' };
+const CONFIDENCE_OPACITY = { certain: 1.0, probable: 0.85, tentative: 0.6, 'under-revision': 0.5 };
 
 // ============================================================
-// COMPUTE DEGREES
+// COMPUTE DEGREES & ADJACENCY
 // ============================================================
 const degrees = {};
 GRAPH_DATA.nodes.forEach(n => degrees[n.id] = 0);
 GRAPH_DATA.edges.forEach(e => {
-  const src = typeof e.source === 'object' ? e.source.id : e.source;
-  const tgt = typeof e.target === 'object' ? e.target.id : e.target;
-  degrees[src] = (degrees[src] || 0) + 1;
-  degrees[tgt] = (degrees[tgt] || 0) + 1;
+  degrees[e.source] = (degrees[e.source] || 0) + 1;
+  degrees[e.target] = (degrees[e.target] || 0) + 1;
 });
-
 const maxDeg = Math.max(...Object.values(degrees), 1);
 
 function nodeRadius(node) {
@@ -354,44 +491,28 @@ function nodeRadius(node) {
   return 3 + (d / maxDeg) * 6;
 }
 
-// ============================================================
-// BUILD ADJACENCY FOR DETAIL PANEL
-// ============================================================
 const adjacency = {};
 GRAPH_DATA.nodes.forEach(n => adjacency[n.id] = []);
 GRAPH_DATA.edges.forEach(e => {
-  const src = typeof e.source === 'object' ? e.source.id : e.source;
-  const tgt = typeof e.target === 'object' ? e.target.id : e.target;
-  adjacency[src].push({ target: tgt, polarity: e.polarity, weight: e.weight });
-  adjacency[tgt].push({ target: src, polarity: e.polarity, weight: e.weight });
+  adjacency[e.source].push({ target: e.target, polarity: e.polarity });
+  adjacency[e.target].push({ target: e.source, polarity: e.polarity });
 });
 
 const nodeMap = {};
 GRAPH_DATA.nodes.forEach(n => nodeMap[n.id] = n);
 
 // ============================================================
-// SELECTED STATE
+// SELECTION STATE
 // ============================================================
 let selectedNode = null;
-let highlightNodes = new Set();
-let highlightLinks = new Set();
+const highlightNodes = new Set();
 
 function selectNode(node) {
   selectedNode = node;
   highlightNodes.clear();
-  highlightLinks.clear();
-
   if (node) {
     highlightNodes.add(node.id);
-    GRAPH_DATA.edges.forEach(e => {
-      const src = typeof e.source === 'object' ? e.source.id : e.source;
-      const tgt = typeof e.target === 'object' ? e.target.id : e.target;
-      if (src === node.id || tgt === node.id) {
-        highlightNodes.add(src);
-        highlightNodes.add(tgt);
-        highlightLinks.add(e);
-      }
-    });
+    (adjacency[node.id] || []).forEach(c => highlightNodes.add(c.target));
     showDetailPanel(node);
   } else {
     hideDetailPanel();
@@ -404,54 +525,74 @@ function selectNode(node) {
 const detailPanel = document.getElementById('detail-panel');
 const detailLabel = document.getElementById('detail-label');
 const detailBadges = document.getElementById('detail-badges');
-const detailConnections = document.getElementById('detail-connections');
+const detailConns = document.getElementById('detail-connections');
 
 function showDetailPanel(node) {
   detailLabel.textContent = node.label;
-
-  const tierClass = `badge-tier-${node.tier}`;
-  const confClass = `badge-${node.confidence.replace('-', '')}`;
-  // Fix: under-revision needs special class
-  const confClassFixed = node.confidence === 'under-revision' ? 'badge-under-revision' : `badge-${node.confidence}`;
-  detailBadges.innerHTML = `
-    <span class="badge ${tierClass}">${node.tier}</span>
-    <span class="badge ${confClassFixed}">${node.confidence.replace('-', ' ')}</span>
-  `;
+  const confClass = node.confidence === 'under-revision' ? 'badge-under-revision' : 'badge-' + node.confidence;
+  detailBadges.innerHTML =
+    '<span class="badge badge-tier-' + node.tier + '">' + node.tier + '</span>' +
+    '<span class="badge ' + confClass + '">' + node.confidence.replace('-', ' ') + '</span>';
 
   const conns = adjacency[node.id] || [];
   const supports = conns.filter(c => c.polarity === 'support');
   const tensions = conns.filter(c => c.polarity === 'tension');
-
   let html = '';
   if (supports.length) {
-    html += '<h3>Supports</h3>';
+    html += '<h4>Supports</h4>';
     supports.forEach(c => {
       const n = nodeMap[c.target];
-      if (n) html += `<div class="connection-item conn-support" data-id="${c.target}">${n.label}</div>`;
+      if (n) html += '<div class="connection-item conn-support" data-id="' + c.target + '">' + n.label + '</div>';
     });
   }
   if (tensions.length) {
-    html += '<h3 style="margin-top:8px">Tensions</h3>';
+    html += '<h4 style="margin-top:6px">Tensions</h4>';
     tensions.forEach(c => {
       const n = nodeMap[c.target];
-      if (n) html += `<div class="connection-item conn-tension" data-id="${c.target}">${n.label}</div>`;
+      if (n) html += '<div class="connection-item conn-tension" data-id="' + c.target + '">' + n.label + '</div>';
     });
   }
-
-  detailConnections.innerHTML = html;
+  detailConns.innerHTML = html;
   detailPanel.classList.add('visible');
 
-  // Click connections to navigate
-  detailConnections.querySelectorAll('.connection-item').forEach(el => {
+  detailConns.querySelectorAll('.connection-item').forEach(el => {
     el.addEventListener('click', () => {
-      const targetNode = GRAPH_DATA.nodes.find(n => n.id === el.dataset.id);
-      if (targetNode) selectNode(targetNode);
+      const t = GRAPH_DATA.nodes.find(n => n.id === el.dataset.id);
+      if (t) selectNode(t);
     });
   });
 }
 
-function hideDetailPanel() {
-  detailPanel.classList.remove('visible');
+function hideDetailPanel() { detailPanel.classList.remove('visible'); }
+
+// ============================================================
+// CREATE LABEL TEXTURE (no roundRect dependency)
+// ============================================================
+function makeLabelTexture(text) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const label = text.length > 42 ? text.slice(0, 40) + '\u2026' : text;
+  const fontSize = 28;
+  ctx.font = fontSize + 'px Helvetica Neue, Arial, sans-serif';
+  const tw = ctx.measureText(label).width;
+  canvas.width = tw + 24;
+  canvas.height = fontSize + 18;
+  // Background
+  ctx.fillStyle = 'rgba(22, 33, 62, 0.75)';
+  const r = 6, w = canvas.width, h = canvas.height;
+  ctx.beginPath();
+  ctx.moveTo(r, 0);
+  ctx.lineTo(w - r, 0); ctx.quadraticCurveTo(w, 0, w, r);
+  ctx.lineTo(w, h - r); ctx.quadraticCurveTo(w, h, w - r, h);
+  ctx.lineTo(r, h); ctx.quadraticCurveTo(0, h, 0, h - r);
+  ctx.lineTo(0, r); ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.closePath();
+  ctx.fill();
+  // Text
+  ctx.font = fontSize + 'px Helvetica Neue, Arial, sans-serif';
+  ctx.fillStyle = '#e0e0e0';
+  ctx.fillText(label, 12, fontSize + 4);
+  return new THREE.CanvasTexture(canvas);
 }
 
 // ============================================================
@@ -461,145 +602,90 @@ const container = document.getElementById('graph-container');
 
 const Graph = ForceGraph3D()(container)
   .graphData(GRAPH_DATA)
-  .backgroundColor('#0a0a1a')
+  .backgroundColor('#1a1a2e')
   .showNavInfo(false)
-  // Nodes
   .nodeThreeObject(node => {
     const radius = nodeRadius(node);
     const color = TIER_COLORS[node.tier] || DEFAULT_NODE_COLOR;
     const opacity = CONFIDENCE_OPACITY[node.confidence] || 0.7;
-
     const group = new THREE.Group();
 
-    // Glow sphere
-    const glowGeo = new THREE.SphereGeometry(radius * 1.8, 16, 16);
-    const glowMat = new THREE.MeshBasicMaterial({
-      color: color,
-      transparent: true,
-      opacity: 0.08,
+    // Glow
+    const glowMat = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.1 });
+    group.add(new THREE.Mesh(new THREE.SphereGeometry(radius * 2, 16, 16), glowMat));
+
+    // Core
+    const coreMat = new THREE.MeshLambertMaterial({
+      color: color, transparent: true, opacity: opacity,
+      emissive: color, emissiveIntensity: 0.35
     });
-    group.add(new THREE.Mesh(glowGeo, glowMat));
+    group.add(new THREE.Mesh(new THREE.SphereGeometry(radius, 20, 20), coreMat));
 
-    // Core sphere
-    const geo = new THREE.SphereGeometry(radius, 24, 24);
-    const mat = new THREE.MeshPhongMaterial({
-      color: color,
-      transparent: true,
-      opacity: opacity,
-      emissive: color,
-      emissiveIntensity: 0.3,
-      shininess: 60,
-    });
-    group.add(new THREE.Mesh(geo, mat));
-
-    // Label sprite
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const text = node.label.length > 40 ? node.label.slice(0, 38) + '...' : node.label;
-    const fontSize = 28;
-    ctx.font = `${fontSize}px Inter, sans-serif`;
-    const textWidth = ctx.measureText(text).width;
-    canvas.width = textWidth + 20;
-    canvas.height = fontSize + 16;
-    ctx.font = `${fontSize}px Inter, sans-serif`;
-    ctx.fillStyle = 'rgba(10, 10, 26, 0.7)';
-    ctx.roundRect(0, 0, canvas.width, canvas.height, 6);
-    ctx.fill();
-    ctx.fillStyle = '#e0e0e0';
-    ctx.fillText(text, 10, fontSize + 2);
-
-    const texture = new THREE.CanvasTexture(canvas);
-    const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.9 });
+    // Label
+    const texture = makeLabelTexture(node.label);
+    const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.85 });
     const sprite = new THREE.Sprite(spriteMat);
-    sprite.scale.set(canvas.width / 8, canvas.height / 8, 1);
+    sprite.scale.set(texture.image.width / 8, texture.image.height / 8, 1);
     sprite.position.set(0, radius + 4, 0);
     group.add(sprite);
 
-    // Store refs for highlight updates
-    node.__coreMat = mat;
+    node.__coreMat = coreMat;
     node.__glowMat = glowMat;
     node.__spriteMat = spriteMat;
     node.__group = group;
-
     return group;
   })
   .nodeThreeObjectExtend(false)
-  // Edges
   .linkWidth(link => 0.3 + link.weight * 1.5)
-  .linkColor(link => {
-    const color = EDGE_COLORS[link.polarity] || '#555';
-    return color;
-  })
-  .linkOpacity(0.4)
+  .linkColor(link => EDGE_COLORS[link.polarity] || '#555')
+  .linkOpacity(0.35)
   .linkLineDash(link => link.polarity === 'tension' ? [4, 2] : null)
-  // Force config
-  .d3Force('charge', d3.forceManyBody().strength(-120))
-  .d3Force('link', d3.forceLink().distance(80).strength(0.3))
-  // Click
-  .onNodeClick(node => {
-    selectNode(node);
-  })
-  .onBackgroundClick(() => {
-    selectNode(null);
-  });
+  .onNodeClick(node => selectNode(node))
+  .onBackgroundClick(() => selectNode(null));
 
-// Warm up the simulation
-Graph.d3Force('center', d3.forceCenter(0, 0, 0).strength(0.05));
+// Force tuning — use the built-in d3 forces (3d-force-graph bundles them)
+Graph.d3Force('charge').strength(-100);
+Graph.d3Force('center', null); // remove default center, add our own
+Graph.numDimensions(3);
 
-// Add lights
+// Add lights to scene
 const scene = Graph.scene();
-const ambientLight = new THREE.AmbientLight(0x404060, 1.5);
-scene.add(ambientLight);
-const pointLight = new THREE.PointLight(0xffffff, 1.2, 1000);
-pointLight.position.set(100, 200, 100);
-scene.add(pointLight);
+scene.add(new THREE.AmbientLight(0x404060, 1.8));
+const ptLight = new THREE.PointLight(0xffffff, 1.0, 800);
+ptLight.position.set(80, 160, 80);
+scene.add(ptLight);
 
-// Subtle starfield background
-(function addStars() {
-  const starGeo = new THREE.BufferGeometry();
-  const starCount = 2000;
-  const positions = new Float32Array(starCount * 3);
-  for (let i = 0; i < starCount * 3; i++) {
-    positions[i] = (Math.random() - 0.5) * 2000;
-  }
-  starGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  const starMat = new THREE.PointsMaterial({
-    color: 0xffffff,
-    size: 0.5,
-    transparent: true,
-    opacity: 0.4,
-  });
-  scene.add(new THREE.Points(starGeo, starMat));
+// Starfield
+(function() {
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(3000 * 3);
+  for (let i = 0; i < pos.length; i++) pos[i] = (Math.random() - 0.5) * 2000;
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  scene.add(new THREE.Points(geo, new THREE.PointsMaterial({
+    color: 0xffffff, size: 0.4, transparent: true, opacity: 0.3
+  })));
 })();
 
 // ============================================================
-// HIGHLIGHT UPDATE (per frame)
+// HIGHLIGHT (per tick)
 // ============================================================
 Graph.onEngineTick(() => {
-  if (!selectedNode) {
-    // Reset all opacities
-    GRAPH_DATA.nodes.forEach(node => {
-      if (node.__coreMat) {
-        node.__coreMat.opacity = CONFIDENCE_OPACITY[node.confidence] || 0.7;
-        node.__coreMat.emissiveIntensity = 0.3;
-        node.__glowMat.opacity = 0.08;
-        node.__spriteMat.opacity = 0.9;
-      }
-    });
-    return;
-  }
-
   GRAPH_DATA.nodes.forEach(node => {
     if (!node.__coreMat) return;
-    if (highlightNodes.has(node.id)) {
+    if (!selectedNode) {
+      node.__coreMat.opacity = CONFIDENCE_OPACITY[node.confidence] || 0.7;
+      node.__coreMat.emissiveIntensity = 0.35;
+      node.__glowMat.opacity = 0.1;
+      node.__spriteMat.opacity = 0.85;
+    } else if (highlightNodes.has(node.id)) {
       node.__coreMat.opacity = 1.0;
-      node.__coreMat.emissiveIntensity = node.id === selectedNode.id ? 0.7 : 0.5;
-      node.__glowMat.opacity = node.id === selectedNode.id ? 0.2 : 0.12;
+      node.__coreMat.emissiveIntensity = node.id === selectedNode.id ? 0.8 : 0.55;
+      node.__glowMat.opacity = node.id === selectedNode.id ? 0.25 : 0.15;
       node.__spriteMat.opacity = 1.0;
     } else {
-      node.__coreMat.opacity = 0.08;
+      node.__coreMat.opacity = 0.06;
       node.__glowMat.opacity = 0.02;
-      node.__spriteMat.opacity = 0.15;
+      node.__spriteMat.opacity = 0.12;
     }
   });
 });
@@ -607,153 +693,110 @@ Graph.onEngineTick(() => {
 // ============================================================
 // FLY CAMERA CONTROLS
 // ============================================================
-(function setupFlyControls() {
+(function() {
   const camera = Graph.camera();
   const renderer = Graph.renderer();
-  const domElement = renderer.domElement;
+  const canvas = renderer.domElement;
 
-  // Disable default orbit controls
+  // Disable orbit controls
   const controls = Graph.controls();
   controls.enabled = false;
 
-  // Camera state
-  let yaw = 0;
-  let pitch = 0;
+  let yaw = 0, pitch = 0;
   let speed = 1.2;
-  const minSpeed = 0.2;
-  const maxSpeed = 8;
-
+  const MIN_SPEED = 0.2, MAX_SPEED = 8;
   const keys = {};
-  let pointerLocked = false;
+  let locked = false;
 
-  // Position camera to see the graph
-  camera.position.set(0, 0, 300);
-  camera.lookAt(0, 0, 0);
+  camera.position.set(0, 50, 250);
 
-  // Speed indicator
   const speedEl = document.getElementById('speed-indicator');
   const crosshair = document.getElementById('crosshair');
 
-  function updateSpeedDisplay() {
-    speedEl.textContent = `SPEED ${speed.toFixed(1)}`;
+  function showSpeed() {
+    speedEl.textContent = 'SPEED ' + speed.toFixed(1);
     speedEl.classList.add('visible');
-    clearTimeout(speedEl._hideTimer);
-    speedEl._hideTimer = setTimeout(() => speedEl.classList.remove('visible'), 1500);
+    clearTimeout(speedEl._t);
+    speedEl._t = setTimeout(() => speedEl.classList.remove('visible'), 1500);
   }
 
-  // Pointer lock for mouselook
-  domElement.addEventListener('click', (e) => {
-    // Don't lock if clicking on UI
-    if (e.target !== domElement) return;
-    if (!pointerLocked) {
-      domElement.requestPointerLock();
-    }
-  });
-
+  // Pointer lock
+  canvas.addEventListener('click', () => { if (!locked) canvas.requestPointerLock(); });
   document.addEventListener('pointerlockchange', () => {
-    pointerLocked = document.pointerLockElement === domElement;
-    crosshair.classList.toggle('visible', pointerLocked);
+    locked = document.pointerLockElement === canvas;
+    crosshair.classList.toggle('visible', locked);
   });
 
   // Mouse look
-  document.addEventListener('mousemove', (e) => {
-    if (!pointerLocked) return;
-    const sensitivity = 0.002;
-    yaw -= e.movementX * sensitivity;
-    pitch -= e.movementY * sensitivity;
-    pitch = Math.max(-Math.PI / 2 + 0.01, Math.min(Math.PI / 2 - 0.01, pitch));
+  document.addEventListener('mousemove', e => {
+    if (!locked) return;
+    yaw -= e.movementX * 0.002;
+    pitch = Math.max(-1.5, Math.min(1.5, pitch - e.movementY * 0.002));
   });
 
-  // Keyboard
-  document.addEventListener('keydown', (e) => {
+  // Keys
+  document.addEventListener('keydown', e => {
     keys[e.code] = true;
-    if (e.code === 'Escape') {
-      if (selectedNode) {
-        selectNode(null);
-        e.preventDefault();
-      }
-    }
+    if (e.code === 'Escape' && selectedNode) { selectNode(null); e.preventDefault(); }
   });
+  document.addEventListener('keyup', e => { keys[e.code] = false; });
 
-  document.addEventListener('keyup', (e) => {
-    keys[e.code] = false;
-  });
-
-  // Scroll to adjust speed
-  domElement.addEventListener('wheel', (e) => {
+  // Speed via scroll
+  canvas.addEventListener('wheel', e => {
     e.preventDefault();
-    speed *= e.deltaY > 0 ? 0.9 : 1.1;
-    speed = Math.max(minSpeed, Math.min(maxSpeed, speed));
-    updateSpeedDisplay();
+    speed = Math.max(MIN_SPEED, Math.min(MAX_SPEED, speed * (e.deltaY > 0 ? 0.88 : 1.12)));
+    showSpeed();
   }, { passive: false });
 
-  // Animation loop
-  function flyTick() {
-    requestAnimationFrame(flyTick);
+  // Fly loop
+  const fwd = new THREE.Vector3();
+  const right = new THREE.Vector3();
+  const move = new THREE.Vector3();
+  const euler = new THREE.Euler(0, 0, 0, 'YXZ');
 
-    // Build direction from yaw/pitch
-    const forward = new THREE.Vector3(
-      -Math.sin(yaw) * Math.cos(pitch),
-      Math.sin(pitch),
-      -Math.cos(yaw) * Math.cos(pitch)
-    );
-    const right = new THREE.Vector3(
-      Math.cos(yaw), 0, -Math.sin(yaw)
-    );
-    const up = new THREE.Vector3(0, 1, 0);
+  function tick() {
+    requestAnimationFrame(tick);
 
-    const move = new THREE.Vector3();
+    fwd.set(-Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), -Math.cos(yaw) * Math.cos(pitch));
+    right.set(Math.cos(yaw), 0, -Math.sin(yaw));
+    move.set(0, 0, 0);
 
-    if (keys['KeyW'] || keys['ArrowUp'])    move.add(forward);
-    if (keys['KeyS'] || keys['ArrowDown'])  move.sub(forward);
-    if (keys['KeyA'] || keys['ArrowLeft'])  move.sub(right);
-    if (keys['KeyD'] || keys['ArrowRight']) move.add(right);
-    if (keys['Space'])    move.add(up);
-    if (keys['ShiftLeft'] || keys['ShiftRight']) move.sub(up);
+    if (keys.KeyW || keys.ArrowUp) move.add(fwd);
+    if (keys.KeyS || keys.ArrowDown) move.sub(fwd);
+    if (keys.KeyA || keys.ArrowLeft) move.sub(right);
+    if (keys.KeyD || keys.ArrowRight) move.add(right);
+    if (keys.Space) move.y += 1;
+    if (keys.ShiftLeft || keys.ShiftRight) move.y -= 1;
 
-    if (move.length() > 0) {
+    if (move.lengthSq() > 0) {
       move.normalize().multiplyScalar(speed);
       camera.position.add(move);
     }
 
-    // Apply rotation
-    const quaternion = new THREE.Quaternion();
-    const euler = new THREE.Euler(pitch, yaw, 0, 'YXZ');
-    quaternion.setFromEuler(euler);
-    camera.quaternion.copy(quaternion);
+    euler.set(pitch, yaw, 0);
+    camera.quaternion.setFromEuler(euler);
   }
+  tick();
 
-  flyTick();
-
-  // Raycasting for node clicks while in pointer lock
+  // Raycasting for node selection in pointer-lock mode
   const raycaster = new THREE.Raycaster();
-  document.addEventListener('click', (e) => {
-    if (!pointerLocked) return;
-
-    // Cast ray from center of screen
+  document.addEventListener('click', () => {
+    if (!locked) return;
     raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-
-    // Check against node objects
-    const nodeObjects = GRAPH_DATA.nodes
-      .filter(n => n.__group)
-      .map(n => {
-        n.__group.traverse(child => { child.__graphNode = n; });
-        return n.__group;
+    const meshes = [];
+    GRAPH_DATA.nodes.forEach(n => {
+      if (!n.__group) return;
+      n.__group.traverse(child => {
+        if (child.isMesh) { child.__gNode = n; meshes.push(child); }
       });
-
-    const allChildren = [];
-    nodeObjects.forEach(g => g.traverse(child => {
-      if (child.isMesh) allChildren.push(child);
-    }));
-
-    const intersects = raycaster.intersectObjects(allChildren, false);
-    if (intersects.length > 0) {
-      const hit = intersects[0].object;
-      if (hit.__graphNode) {
-        selectNode(hit.__graphNode);
-      }
+    });
+    const hits = raycaster.intersectObjects(meshes, false);
+    if (hits.length > 0 && hits[0].object.__gNode) {
+      selectNode(hits[0].object.__gNode);
     }
   });
+})();
+
 })();
 </script>
 </body>
