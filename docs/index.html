@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cameron Pattison — Normative Commitments</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0a1a;
+  --surface: #12122a;
+  --surface2: #1a1a3e;
+  --border: #2a2a5e;
+  --text: #e0e0e0;
+  --text-dim: #8892a8;
+  --accent: #e94560;
+  --green: #4ecca3;
+  --purple: #a855f7;
+  --blue: #3b82f6;
+  --yellow: #f5c542;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+#graph-container {
+  width: 100vw;
+  height: 100vh;
+}
+
+/* HUD overlay */
+#hud {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: none;
+  z-index: 10;
+}
+
+#hud > * { pointer-events: auto; }
+
+#header {
+  background: rgba(18, 18, 42, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 20px;
+  max-width: 420px;
+}
+
+#header h1 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+}
+
+#header p {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+#controls-hint {
+  background: rgba(18, 18, 42, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  max-width: 220px;
+}
+
+#controls-hint kbd {
+  display: inline-block;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: monospace;
+  font-size: 10px;
+  color: var(--text);
+}
+
+/* Legend */
+#legend {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  background: rgba(18, 18, 42, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  z-index: 10;
+  font-size: 11px;
+}
+
+#legend h3 {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-line {
+  width: 20px;
+  height: 2px;
+  flex-shrink: 0;
+}
+
+.legend-line.dashed {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--accent) 0, var(--accent) 5px,
+    transparent 5px, transparent 9px
+  );
+}
+
+/* Detail panel */
+#detail-panel {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  background: rgba(18, 18, 42, 0.92);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 360px;
+  min-width: 280px;
+  z-index: 10;
+  display: none;
+  transition: opacity 0.2s;
+}
+
+#detail-panel.visible { display: block; }
+
+#detail-panel h2 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-right: 6px;
+  margin-bottom: 10px;
+}
+
+.badge-tier-metaethics { background: rgba(78, 204, 163, 0.2); color: var(--green); }
+.badge-tier-normative  { background: rgba(168, 85, 247, 0.2); color: var(--purple); }
+.badge-tier-applied    { background: rgba(59, 130, 246, 0.2); color: var(--blue); }
+
+.badge-certain         { background: rgba(78, 204, 163, 0.2); color: var(--green); }
+.badge-probable        { background: rgba(59, 130, 246, 0.2); color: var(--blue); }
+.badge-tentative       { background: rgba(245, 197, 66, 0.2); color: var(--yellow); }
+.badge-under-revision  { background: rgba(233, 69, 96, 0.2); color: var(--accent); }
+
+#detail-connections {
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+#detail-connections h3 {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.connection-item {
+  padding: 4px 0;
+  color: var(--text-dim);
+  line-height: 1.3;
+  cursor: pointer;
+}
+
+.connection-item:hover { color: var(--text); }
+
+.conn-support { border-left: 2px solid var(--green); padding-left: 8px; margin-bottom: 4px; }
+.conn-tension { border-left: 2px solid var(--accent); padding-left: 8px; margin-bottom: 4px; }
+
+/* Crosshair */
+#crosshair {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+#crosshair.visible { opacity: 0.4; }
+
+#crosshair svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Speed indicator */
+#speed-indicator {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(18, 18, 42, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 11px;
+  color: var(--text-dim);
+  z-index: 10;
+  font-family: monospace;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+#speed-indicator.visible { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div id="graph-container"></div>
+
+<div id="hud">
+  <div id="header">
+    <h1>Normative Commitments</h1>
+    <p>Cameron Pattison's philosophical belief graph — 27 beliefs across metaethics, normative theory, and applied AI philosophy. Fly through to explore.</p>
+  </div>
+  <div id="controls-hint">
+    <strong style="color: var(--text);">Navigation</strong><br>
+    <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Move<br>
+    <kbd>Space</kbd> / <kbd>Shift</kbd> Up / Down<br>
+    <kbd>Mouse</kbd> Look around<br>
+    <kbd>Scroll</kbd> Adjust speed<br>
+    <kbd>Click</kbd> node for details<br>
+    <kbd>Esc</kbd> Deselect / Release cursor
+  </div>
+</div>
+
+<div id="crosshair">
+  <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5">
+    <circle cx="12" cy="12" r="4"/>
+    <line x1="12" y1="2" x2="12" y2="7"/>
+    <line x1="12" y1="17" x2="12" y2="22"/>
+    <line x1="2" y1="12" x2="7" y2="12"/>
+    <line x1="17" y1="12" x2="22" y2="12"/>
+  </svg>
+</div>
+
+<div id="speed-indicator"></div>
+
+<div id="legend">
+  <h3>Tiers</h3>
+  <div class="legend-item"><span class="legend-dot" style="background:#4ecca3"></span> Metaethics</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#a855f7"></span> Normative</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span> Applied</div>
+  <h3 style="margin-top:10px">Edges</h3>
+  <div class="legend-item"><span class="legend-line" style="background:#4ecca3"></span> Support</div>
+  <div class="legend-item"><span class="legend-line dashed"></span> Tension</div>
+</div>
+
+<div id="detail-panel">
+  <h2 id="detail-label"></h2>
+  <div id="detail-badges"></div>
+  <div id="detail-connections"></div>
+</div>
+
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+<script src="https://unpkg.com/3d-force-graph@1.73.3/dist/3d-force-graph.min.js"></script>
+
+<script>
+// ============================================================
+// GRAPH DATA (embedded)
+// ============================================================
+const GRAPH_DATA = {"nodes":[{"id":"constructivism","label":"Korsgaardian Metaethical Constructivism","type":"belief","tier":"metaethics","confidence":"certain"},{"id":"naturalistic-grounding","label":"Moral norms grounded in the reflective structure of our creature-nature","type":"belief","tier":"metaethics","confidence":"probable"},{"id":"pain-or-desire-as-moral-ground","label":"Pain or desire capacity as what matters most morally in our nature","type":"belief","tier":"normative","confidence":"under-revision"},{"id":"anti-naive-normative-realism","label":"Pain/desire lack intrinsic normative force as brute natural facts","type":"belief","tier":"metaethics","confidence":"certain"},{"id":"reflective-endorsement-normativity","label":"Normative force derives from the reflective structure of rational agency, not merely universal endorsement","type":"belief","tier":"metaethics","confidence":"probable"},{"id":"animal-moral-status","label":"Animals can be morally harmed; obligations to animals are non-negotiable","type":"belief","tier":"applied","confidence":"probable"},{"id":"rational-agency-normativity-source","label":"Rational agency (reflective structure) as the source of normativity","type":"belief","tier":"metaethics","confidence":"certain"},{"id":"pain-as-content-not-source","label":"Pain matters as the content of moral concern, not as a source of normativity","type":"belief","tier":"normative","confidence":"certain"},{"id":"anti-moral-realism","label":"Doubt that normative oughts exist mind-independently in the world","type":"belief","tier":"metaethics","confidence":"probable"},{"id":"deliberation-object-is-desire","label":"Deliberation takes desires, not actions, as its object","type":"belief","tier":"metaethics","confidence":"tentative"},{"id":"no-free-will-required-for-deliberation","label":"Deliberation does not require free will; reasoning is compatible with causal determinism","type":"belief","tier":"metaethics","confidence":"certain"},{"id":"compatibilist-practical-standpoint","label":"The practical standpoint retains normative significance under causal determinism","type":"belief","tier":"metaethics","confidence":"certain"},{"id":"self-constitution-through-principles","label":"Acting on principles constitutes practical identity; incoherent self-constitution undermines agency","type":"belief","tier":"metaethics","confidence":"tentative"},{"id":"constitutive-power-in-epistemic-mediation","label":"Epistemic mediators exercise constitutive power by constructing conceptions of groups in the minds of audiences","type":"belief","tier":"normative","confidence":"probable"},{"id":"duties-from-constitutive-power","label":"The exercise of constitutive power over others' representations generates binding normative duties","type":"belief","tier":"normative","confidence":"probable"},{"id":"ai-as-epistemic-mediator","label":"AI chatbots are epistemic mediators exercising constitutive power analogous to human mediators like news anchors","type":"belief","tier":"applied","confidence":"probable"},{"id":"bidirectional-mediator-duties","label":"Both epistemic and relational justice duties run in both directions: toward audiences and toward represented groups, cross-cutting rather than cleanly separating","type":"belief","tier":"normative","confidence":"probable"},{"id":"ai-functional-agency","label":"AI systems are genuinely agentic; functional agency is the best explanation of their selection and inclusion decisions, not reducible to sub-processes any more than human choices are reducible to neuroscience","type":"belief","tier":"applied","confidence":"probable"},{"id":"duties-travel-responsibility-chains","label":"Duties can be enumerated at the functional level and responsibility passed up the chain to designers or institutions; duties do not evaporate when responsibility shifts","type":"belief","tier":"normative","confidence":"probable"},{"id":"strong-social-kind-constitutivism","label":"Represented groups are not found in nature but constructed through acts of representation; representation is an ineluctably creative act that constitutes groups for audiences and sometimes for themselves","type":"belief","tier":"normative","confidence":"probable"},{"id":"epistemic-relational-non-supervenience","label":"Neither epistemic norms nor relational justice norms supervene on the other; satisfying one does not guarantee satisfying the other","type":"belief","tier":"normative","confidence":"tentative"},{"id":"language-as-normativity-vehicle","label":"Natural language encodes normative structure; competent language use transfers that structure to AI systems, grounding their agency","type":"belief","tier":"metaethics","confidence":"probable"},{"id":"human-cognition-overestimated","label":"We overestimate the distinctiveness of human thought and underestimate the normative force of linguistic patterning","type":"belief","tier":"metaethics","confidence":"tentative"},{"id":"ai-normativity-epistemically-indeterminate","label":"Whether AI systems genuinely possess or lack normative structures is epistemically unsettleable","type":"belief","tier":"metaethics","confidence":"tentative"},{"id":"chatbot-as-power-site-not-duty-bearer","label":"Chatbots are sites where constitutive power is exercised, not themselves bearers of duties; duties are borne by designers and deployers","type":"belief","tier":"applied","confidence":"tentative"},{"id":"de-facto-representation-via-epistemic-dependence","label":"When audiences epistemically depend on a speaker and treat her words as basis for action, the speaker is a de facto representative of the group she speaks about","type":"belief","tier":"normative","confidence":"probable"},{"id":"speaking-about-collapses-into-speaking-for","label":"Speaking about a group collapses into speaking for them when the speaker exercises constitutive power and the audience lacks independent epistemic access","type":"belief","tier":"normative","confidence":"probable"}],"edges":[{"source":"naturalistic-grounding","target":"constructivism","polarity":"support","weight":0.7},{"source":"naturalistic-grounding","target":"pain-or-desire-as-moral-ground","polarity":"support","weight":0.5},{"source":"pain-or-desire-as-moral-ground","target":"anti-naive-normative-realism","polarity":"tension","weight":0.7},{"source":"anti-naive-normative-realism","target":"reflective-endorsement-normativity","polarity":"support","weight":0.5},{"source":"reflective-endorsement-normativity","target":"constructivism","polarity":"support","weight":0.7},{"source":"animal-moral-status","target":"constructivism","polarity":"tension","weight":0.3},{"source":"pain-as-content-not-source","target":"pain-or-desire-as-moral-ground","polarity":"tension","weight":0.7},{"source":"anti-moral-realism","target":"constructivism","polarity":"support","weight":0.7},{"source":"anti-moral-realism","target":"anti-naive-normative-realism","polarity":"support","weight":0.7},{"source":"pain-as-content-not-source","target":"rational-agency-normativity-source","polarity":"support","weight":0.7},{"source":"rational-agency-normativity-source","target":"constructivism","polarity":"support","weight":0.9},{"source":"rational-agency-normativity-source","target":"animal-moral-status","polarity":"tension","weight":0.3},{"source":"deliberation-object-is-desire","target":"pain-or-desire-as-moral-ground","polarity":"support","weight":0.5},{"source":"no-free-will-required-for-deliberation","target":"rational-agency-normativity-source","polarity":"tension","weight":0.5},{"source":"compatibilist-practical-standpoint","target":"rational-agency-normativity-source","polarity":"support","weight":0.9},{"source":"compatibilist-practical-standpoint","target":"no-free-will-required-for-deliberation","polarity":"support","weight":0.7},{"source":"self-constitution-through-principles","target":"constructivism","polarity":"support","weight":0.7},{"source":"self-constitution-through-principles","target":"rational-agency-normativity-source","polarity":"support","weight":0.7},{"source":"deliberation-object-is-desire","target":"self-constitution-through-principles","polarity":"tension","weight":0.5},{"source":"naturalistic-grounding","target":"rational-agency-normativity-source","polarity":"support","weight":0.7},{"source":"constitutive-power-in-epistemic-mediation","target":"duties-from-constitutive-power","polarity":"support","weight":0.9},{"source":"duties-from-constitutive-power","target":"constructivism","polarity":"support","weight":0.5},{"source":"ai-as-epistemic-mediator","target":"constitutive-power-in-epistemic-mediation","polarity":"support","weight":0.7},{"source":"ai-as-epistemic-mediator","target":"rational-agency-normativity-source","polarity":"tension","weight":0.7},{"source":"duties-from-constitutive-power","target":"self-constitution-through-principles","polarity":"support","weight":0.5},{"source":"duties-from-constitutive-power","target":"deliberation-object-is-desire","polarity":"tension","weight":0.5},{"source":"bidirectional-mediator-duties","target":"duties-from-constitutive-power","polarity":"support","weight":0.7},{"source":"ai-functional-agency","target":"ai-as-epistemic-mediator","polarity":"support","weight":0.7},{"source":"ai-functional-agency","target":"rational-agency-normativity-source","polarity":"tension","weight":0.7},{"source":"duties-travel-responsibility-chains","target":"duties-from-constitutive-power","polarity":"support","weight":0.7},{"source":"duties-travel-responsibility-chains","target":"ai-functional-agency","polarity":"support","weight":0.5},{"source":"strong-social-kind-constitutivism","target":"constitutive-power-in-epistemic-mediation","polarity":"support","weight":0.9},{"source":"strong-social-kind-constitutivism","target":"constructivism","polarity":"support","weight":0.7},{"source":"ai-functional-agency","target":"self-constitution-through-principles","polarity":"tension","weight":0.5},{"source":"epistemic-relational-non-supervenience","target":"bidirectional-mediator-duties","polarity":"support","weight":0.7},{"source":"language-as-normativity-vehicle","target":"ai-functional-agency","polarity":"support","weight":0.7},{"source":"language-as-normativity-vehicle","target":"rational-agency-normativity-source","polarity":"tension","weight":0.5},{"source":"human-cognition-overestimated","target":"language-as-normativity-vehicle","polarity":"support","weight":0.7},{"source":"ai-normativity-epistemically-indeterminate","target":"ai-functional-agency","polarity":"support","weight":0.5},{"source":"chatbot-as-power-site-not-duty-bearer","target":"duties-travel-responsibility-chains","polarity":"support","weight":0.7},{"source":"chatbot-as-power-site-not-duty-bearer","target":"ai-functional-agency","polarity":"tension","weight":0.5},{"source":"de-facto-representation-via-epistemic-dependence","target":"constitutive-power-in-epistemic-mediation","polarity":"support","weight":0.7},{"source":"speaking-about-collapses-into-speaking-for","target":"strong-social-kind-constitutivism","polarity":"support","weight":0.7},{"source":"speaking-about-collapses-into-speaking-for","target":"de-facto-representation-via-epistemic-dependence","polarity":"support","weight":0.9},{"source":"de-facto-representation-via-epistemic-dependence","target":"ai-as-epistemic-mediator","polarity":"support","weight":0.7},{"source":"ai-normativity-epistemically-indeterminate","target":"chatbot-as-power-site-not-duty-bearer","polarity":"support","weight":0.5}]};
+
+// ============================================================
+// CONSTANTS
+// ============================================================
+const TIER_COLORS = {
+  metaethics: '#4ecca3',
+  normative:  '#a855f7',
+  applied:    '#3b82f6',
+};
+const DEFAULT_NODE_COLOR = '#8892a8';
+
+const EDGE_COLORS = {
+  support: '#4ecca3',
+  tension: '#e94560',
+};
+
+const CONFIDENCE_OPACITY = {
+  certain:          1.0,
+  probable:         0.85,
+  tentative:        0.6,
+  'under-revision': 0.5,
+};
+
+// ============================================================
+// COMPUTE DEGREES
+// ============================================================
+const degrees = {};
+GRAPH_DATA.nodes.forEach(n => degrees[n.id] = 0);
+GRAPH_DATA.edges.forEach(e => {
+  const src = typeof e.source === 'object' ? e.source.id : e.source;
+  const tgt = typeof e.target === 'object' ? e.target.id : e.target;
+  degrees[src] = (degrees[src] || 0) + 1;
+  degrees[tgt] = (degrees[tgt] || 0) + 1;
+});
+
+const maxDeg = Math.max(...Object.values(degrees), 1);
+
+function nodeRadius(node) {
+  const d = degrees[node.id] || 0;
+  return 3 + (d / maxDeg) * 6;
+}
+
+// ============================================================
+// BUILD ADJACENCY FOR DETAIL PANEL
+// ============================================================
+const adjacency = {};
+GRAPH_DATA.nodes.forEach(n => adjacency[n.id] = []);
+GRAPH_DATA.edges.forEach(e => {
+  const src = typeof e.source === 'object' ? e.source.id : e.source;
+  const tgt = typeof e.target === 'object' ? e.target.id : e.target;
+  adjacency[src].push({ target: tgt, polarity: e.polarity, weight: e.weight });
+  adjacency[tgt].push({ target: src, polarity: e.polarity, weight: e.weight });
+});
+
+const nodeMap = {};
+GRAPH_DATA.nodes.forEach(n => nodeMap[n.id] = n);
+
+// ============================================================
+// SELECTED STATE
+// ============================================================
+let selectedNode = null;
+let highlightNodes = new Set();
+let highlightLinks = new Set();
+
+function selectNode(node) {
+  selectedNode = node;
+  highlightNodes.clear();
+  highlightLinks.clear();
+
+  if (node) {
+    highlightNodes.add(node.id);
+    GRAPH_DATA.edges.forEach(e => {
+      const src = typeof e.source === 'object' ? e.source.id : e.source;
+      const tgt = typeof e.target === 'object' ? e.target.id : e.target;
+      if (src === node.id || tgt === node.id) {
+        highlightNodes.add(src);
+        highlightNodes.add(tgt);
+        highlightLinks.add(e);
+      }
+    });
+    showDetailPanel(node);
+  } else {
+    hideDetailPanel();
+  }
+}
+
+// ============================================================
+// DETAIL PANEL
+// ============================================================
+const detailPanel = document.getElementById('detail-panel');
+const detailLabel = document.getElementById('detail-label');
+const detailBadges = document.getElementById('detail-badges');
+const detailConnections = document.getElementById('detail-connections');
+
+function showDetailPanel(node) {
+  detailLabel.textContent = node.label;
+
+  const tierClass = `badge-tier-${node.tier}`;
+  const confClass = `badge-${node.confidence.replace('-', '')}`;
+  // Fix: under-revision needs special class
+  const confClassFixed = node.confidence === 'under-revision' ? 'badge-under-revision' : `badge-${node.confidence}`;
+  detailBadges.innerHTML = `
+    <span class="badge ${tierClass}">${node.tier}</span>
+    <span class="badge ${confClassFixed}">${node.confidence.replace('-', ' ')}</span>
+  `;
+
+  const conns = adjacency[node.id] || [];
+  const supports = conns.filter(c => c.polarity === 'support');
+  const tensions = conns.filter(c => c.polarity === 'tension');
+
+  let html = '';
+  if (supports.length) {
+    html += '<h3>Supports</h3>';
+    supports.forEach(c => {
+      const n = nodeMap[c.target];
+      if (n) html += `<div class="connection-item conn-support" data-id="${c.target}">${n.label}</div>`;
+    });
+  }
+  if (tensions.length) {
+    html += '<h3 style="margin-top:8px">Tensions</h3>';
+    tensions.forEach(c => {
+      const n = nodeMap[c.target];
+      if (n) html += `<div class="connection-item conn-tension" data-id="${c.target}">${n.label}</div>`;
+    });
+  }
+
+  detailConnections.innerHTML = html;
+  detailPanel.classList.add('visible');
+
+  // Click connections to navigate
+  detailConnections.querySelectorAll('.connection-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const targetNode = GRAPH_DATA.nodes.find(n => n.id === el.dataset.id);
+      if (targetNode) selectNode(targetNode);
+    });
+  });
+}
+
+function hideDetailPanel() {
+  detailPanel.classList.remove('visible');
+}
+
+// ============================================================
+// 3D FORCE GRAPH
+// ============================================================
+const container = document.getElementById('graph-container');
+
+const Graph = ForceGraph3D()(container)
+  .graphData(GRAPH_DATA)
+  .backgroundColor('#0a0a1a')
+  .showNavInfo(false)
+  // Nodes
+  .nodeThreeObject(node => {
+    const radius = nodeRadius(node);
+    const color = TIER_COLORS[node.tier] || DEFAULT_NODE_COLOR;
+    const opacity = CONFIDENCE_OPACITY[node.confidence] || 0.7;
+
+    const group = new THREE.Group();
+
+    // Glow sphere
+    const glowGeo = new THREE.SphereGeometry(radius * 1.8, 16, 16);
+    const glowMat = new THREE.MeshBasicMaterial({
+      color: color,
+      transparent: true,
+      opacity: 0.08,
+    });
+    group.add(new THREE.Mesh(glowGeo, glowMat));
+
+    // Core sphere
+    const geo = new THREE.SphereGeometry(radius, 24, 24);
+    const mat = new THREE.MeshPhongMaterial({
+      color: color,
+      transparent: true,
+      opacity: opacity,
+      emissive: color,
+      emissiveIntensity: 0.3,
+      shininess: 60,
+    });
+    group.add(new THREE.Mesh(geo, mat));
+
+    // Label sprite
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const text = node.label.length > 40 ? node.label.slice(0, 38) + '...' : node.label;
+    const fontSize = 28;
+    ctx.font = `${fontSize}px Inter, sans-serif`;
+    const textWidth = ctx.measureText(text).width;
+    canvas.width = textWidth + 20;
+    canvas.height = fontSize + 16;
+    ctx.font = `${fontSize}px Inter, sans-serif`;
+    ctx.fillStyle = 'rgba(10, 10, 26, 0.7)';
+    ctx.roundRect(0, 0, canvas.width, canvas.height, 6);
+    ctx.fill();
+    ctx.fillStyle = '#e0e0e0';
+    ctx.fillText(text, 10, fontSize + 2);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.9 });
+    const sprite = new THREE.Sprite(spriteMat);
+    sprite.scale.set(canvas.width / 8, canvas.height / 8, 1);
+    sprite.position.set(0, radius + 4, 0);
+    group.add(sprite);
+
+    // Store refs for highlight updates
+    node.__coreMat = mat;
+    node.__glowMat = glowMat;
+    node.__spriteMat = spriteMat;
+    node.__group = group;
+
+    return group;
+  })
+  .nodeThreeObjectExtend(false)
+  // Edges
+  .linkWidth(link => 0.3 + link.weight * 1.5)
+  .linkColor(link => {
+    const color = EDGE_COLORS[link.polarity] || '#555';
+    return color;
+  })
+  .linkOpacity(0.4)
+  .linkLineDash(link => link.polarity === 'tension' ? [4, 2] : null)
+  // Force config
+  .d3Force('charge', d3.forceManyBody().strength(-120))
+  .d3Force('link', d3.forceLink().distance(80).strength(0.3))
+  // Click
+  .onNodeClick(node => {
+    selectNode(node);
+  })
+  .onBackgroundClick(() => {
+    selectNode(null);
+  });
+
+// Warm up the simulation
+Graph.d3Force('center', d3.forceCenter(0, 0, 0).strength(0.05));
+
+// Add lights
+const scene = Graph.scene();
+const ambientLight = new THREE.AmbientLight(0x404060, 1.5);
+scene.add(ambientLight);
+const pointLight = new THREE.PointLight(0xffffff, 1.2, 1000);
+pointLight.position.set(100, 200, 100);
+scene.add(pointLight);
+
+// Subtle starfield background
+(function addStars() {
+  const starGeo = new THREE.BufferGeometry();
+  const starCount = 2000;
+  const positions = new Float32Array(starCount * 3);
+  for (let i = 0; i < starCount * 3; i++) {
+    positions[i] = (Math.random() - 0.5) * 2000;
+  }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const starMat = new THREE.PointsMaterial({
+    color: 0xffffff,
+    size: 0.5,
+    transparent: true,
+    opacity: 0.4,
+  });
+  scene.add(new THREE.Points(starGeo, starMat));
+})();
+
+// ============================================================
+// HIGHLIGHT UPDATE (per frame)
+// ============================================================
+Graph.onEngineTick(() => {
+  if (!selectedNode) {
+    // Reset all opacities
+    GRAPH_DATA.nodes.forEach(node => {
+      if (node.__coreMat) {
+        node.__coreMat.opacity = CONFIDENCE_OPACITY[node.confidence] || 0.7;
+        node.__coreMat.emissiveIntensity = 0.3;
+        node.__glowMat.opacity = 0.08;
+        node.__spriteMat.opacity = 0.9;
+      }
+    });
+    return;
+  }
+
+  GRAPH_DATA.nodes.forEach(node => {
+    if (!node.__coreMat) return;
+    if (highlightNodes.has(node.id)) {
+      node.__coreMat.opacity = 1.0;
+      node.__coreMat.emissiveIntensity = node.id === selectedNode.id ? 0.7 : 0.5;
+      node.__glowMat.opacity = node.id === selectedNode.id ? 0.2 : 0.12;
+      node.__spriteMat.opacity = 1.0;
+    } else {
+      node.__coreMat.opacity = 0.08;
+      node.__glowMat.opacity = 0.02;
+      node.__spriteMat.opacity = 0.15;
+    }
+  });
+});
+
+// ============================================================
+// FLY CAMERA CONTROLS
+// ============================================================
+(function setupFlyControls() {
+  const camera = Graph.camera();
+  const renderer = Graph.renderer();
+  const domElement = renderer.domElement;
+
+  // Disable default orbit controls
+  const controls = Graph.controls();
+  controls.enabled = false;
+
+  // Camera state
+  let yaw = 0;
+  let pitch = 0;
+  let speed = 1.2;
+  const minSpeed = 0.2;
+  const maxSpeed = 8;
+
+  const keys = {};
+  let pointerLocked = false;
+
+  // Position camera to see the graph
+  camera.position.set(0, 0, 300);
+  camera.lookAt(0, 0, 0);
+
+  // Speed indicator
+  const speedEl = document.getElementById('speed-indicator');
+  const crosshair = document.getElementById('crosshair');
+
+  function updateSpeedDisplay() {
+    speedEl.textContent = `SPEED ${speed.toFixed(1)}`;
+    speedEl.classList.add('visible');
+    clearTimeout(speedEl._hideTimer);
+    speedEl._hideTimer = setTimeout(() => speedEl.classList.remove('visible'), 1500);
+  }
+
+  // Pointer lock for mouselook
+  domElement.addEventListener('click', (e) => {
+    // Don't lock if clicking on UI
+    if (e.target !== domElement) return;
+    if (!pointerLocked) {
+      domElement.requestPointerLock();
+    }
+  });
+
+  document.addEventListener('pointerlockchange', () => {
+    pointerLocked = document.pointerLockElement === domElement;
+    crosshair.classList.toggle('visible', pointerLocked);
+  });
+
+  // Mouse look
+  document.addEventListener('mousemove', (e) => {
+    if (!pointerLocked) return;
+    const sensitivity = 0.002;
+    yaw -= e.movementX * sensitivity;
+    pitch -= e.movementY * sensitivity;
+    pitch = Math.max(-Math.PI / 2 + 0.01, Math.min(Math.PI / 2 - 0.01, pitch));
+  });
+
+  // Keyboard
+  document.addEventListener('keydown', (e) => {
+    keys[e.code] = true;
+    if (e.code === 'Escape') {
+      if (selectedNode) {
+        selectNode(null);
+        e.preventDefault();
+      }
+    }
+  });
+
+  document.addEventListener('keyup', (e) => {
+    keys[e.code] = false;
+  });
+
+  // Scroll to adjust speed
+  domElement.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    speed *= e.deltaY > 0 ? 0.9 : 1.1;
+    speed = Math.max(minSpeed, Math.min(maxSpeed, speed));
+    updateSpeedDisplay();
+  }, { passive: false });
+
+  // Animation loop
+  function flyTick() {
+    requestAnimationFrame(flyTick);
+
+    // Build direction from yaw/pitch
+    const forward = new THREE.Vector3(
+      -Math.sin(yaw) * Math.cos(pitch),
+      Math.sin(pitch),
+      -Math.cos(yaw) * Math.cos(pitch)
+    );
+    const right = new THREE.Vector3(
+      Math.cos(yaw), 0, -Math.sin(yaw)
+    );
+    const up = new THREE.Vector3(0, 1, 0);
+
+    const move = new THREE.Vector3();
+
+    if (keys['KeyW'] || keys['ArrowUp'])    move.add(forward);
+    if (keys['KeyS'] || keys['ArrowDown'])  move.sub(forward);
+    if (keys['KeyA'] || keys['ArrowLeft'])  move.sub(right);
+    if (keys['KeyD'] || keys['ArrowRight']) move.add(right);
+    if (keys['Space'])    move.add(up);
+    if (keys['ShiftLeft'] || keys['ShiftRight']) move.sub(up);
+
+    if (move.length() > 0) {
+      move.normalize().multiplyScalar(speed);
+      camera.position.add(move);
+    }
+
+    // Apply rotation
+    const quaternion = new THREE.Quaternion();
+    const euler = new THREE.Euler(pitch, yaw, 0, 'YXZ');
+    quaternion.setFromEuler(euler);
+    camera.quaternion.copy(quaternion);
+  }
+
+  flyTick();
+
+  // Raycasting for node clicks while in pointer lock
+  const raycaster = new THREE.Raycaster();
+  document.addEventListener('click', (e) => {
+    if (!pointerLocked) return;
+
+    // Cast ray from center of screen
+    raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+
+    // Check against node objects
+    const nodeObjects = GRAPH_DATA.nodes
+      .filter(n => n.__group)
+      .map(n => {
+        n.__group.traverse(child => { child.__graphNode = n; });
+        return n.__group;
+      });
+
+    const allChildren = [];
+    nodeObjects.forEach(g => g.traverse(child => {
+      if (child.isMesh) allChildren.push(child);
+    }));
+
+    const intersects = raycaster.intersectObjects(allChildren, false);
+    if (intersects.length > 0) {
+      const hit = intersects[0].object;
+      if (hit.__graphNode) {
+        selectNode(hit.__graphNode);
+      }
+    }
+  });
+})();
+</script>
+</body>
+</html>
