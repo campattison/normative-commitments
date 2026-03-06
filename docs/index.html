@@ -425,7 +425,7 @@ body.view-graph .page-content { display: none; }
 <!-- Libraries -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.73.3/dist/3d-force-graph.min.js"></script>
-<script src="https://d3js.org/d3-force-3d.v3.min.js"></script>
+<!-- d3-force-3d is bundled inside 3d-force-graph -->
 
 <script>
 (function() {
@@ -639,14 +639,19 @@ const Graph = ForceGraph3D()(container)
   .linkWidth(link => 0.3 + link.weight * 1.5)
   .linkColor(link => EDGE_COLORS[link.polarity] || '#555')
   .linkOpacity(0.35)
-  .linkLineDash(link => link.polarity === 'tension' ? [4, 2] : null)
+  .linkDirectionalParticles(link => link.polarity === 'tension' ? 3 : 0)
+  .linkDirectionalParticleWidth(1.5)
+  .linkDirectionalParticleColor(link => EDGE_COLORS[link.polarity] || '#555')
+  .linkDirectionalParticleSpeed(0.005)
   .onNodeClick(node => selectNode(node))
   .onBackgroundClick(() => selectNode(null));
 
-// Force tuning — use the built-in d3 forces (3d-force-graph bundles them)
-Graph.d3Force('charge').strength(-100);
-Graph.d3Force('center', null); // remove default center, add our own
+// Force tuning
 Graph.numDimensions(3);
+try {
+  var chargeForce = Graph.d3Force('charge');
+  if (chargeForce) chargeForce.strength(-100);
+} catch(e) { console.warn('Force config:', e); }
 
 // Add lights to scene
 const scene = Graph.scene();
